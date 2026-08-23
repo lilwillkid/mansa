@@ -1,0 +1,5 @@
+ASSISTANT_NAME = "CHAT"
+PLATFORM_NAME = "MANSA"
+VERSION = "0.0.1"
+
+SHUTDOWN_COMMANDS = ["exit", "quit", "shutdown"]
