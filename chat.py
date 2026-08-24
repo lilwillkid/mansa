@@ -15,12 +15,28 @@ def run_chat():
     log_event(f"User identified as {name}.")
 
     while True:
-        command = input("\nWhat would you like to do? ").strip().lower()
+        if session.current_mode:
+            prompt = f"{session.current_mode} > "
+        else:
+            prompt = "What would you like to do? "
+
+        command = input(f"\n{prompt}").strip().lower()
 
         if command in SHUTDOWN_COMMANDS:
             print(f"{ASSISTANT_NAME} offline.")
             log_event(f"{ASSISTANT_NAME} shut down.")
             break
+
+        if command == "back":
+            if session.current_mode:
+                previous_mode = session.current_mode
+                session.set_mode(None)
+
+                print(f"Leaving {previous_mode} mode.")
+            else:
+                print("No active mode.")
+
+            continue
 
         session.add_command(command)
         log_event(f"Command received: {command}")
