@@ -10,6 +10,8 @@ from agents.game_dev import (
     run as run_game_dev,
     GAME_DEV_COMMANDS
 )
+from ai.local_provider import LocalProvider
+from config import AI_SYSTEM_PROMPT
 from core.help import get_help
 from core.system import (
     get_status,
@@ -18,6 +20,9 @@ from core.system import (
     get_history,
     get_mode
 )
+
+
+AI_PROVIDER = LocalProvider()
 
 
 COMMAND_GROUPS = {
@@ -75,6 +80,30 @@ def get_current_group(session):
     return COMMAND_GROUPS.get(session.current_mode)
 
 
+def ask_ai(command, session):
+    if not session.get_ai_messages():
+        session.add_ai_message(
+            "system",
+            AI_SYSTEM_PROMPT
+        )
+
+    session.add_ai_message(
+        "user",
+        command
+    )
+
+    response = AI_PROVIDER.generate_response(
+        session.get_ai_messages()
+    )
+
+    session.add_ai_message(
+        "assistant",
+        response
+    )
+
+    return response
+
+
 def route_command(command, session):
     command = command.strip().lower()
 
@@ -100,7 +129,4 @@ def route_command(command, session):
 
             return group["action"]()
 
-    if current_group:
-        return current_group["action"](command)
-
-    return "I don't recognize that command yet."
+    return ask_ai(command, session)
