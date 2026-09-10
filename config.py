@@ -1,10 +1,12 @@
 ASSISTANT_NAME = "C.H.A.T."
 PLATFORM_NAME = "M.A.N.S.A."
-VERSION = "0.0.5"
+VERSION = "0.1.0"
 
 SHUTDOWN_COMMANDS = ["exit", "quit", "shutdown"]
 
 AI_MODEL = "qwen3:4b"
+
+DATABASE_PATH = "data/mansa.db"
 
 AI_SYSTEM_PROMPT = """
 You are C.H.A.T., the conversational interface for M.A.N.S.A.
