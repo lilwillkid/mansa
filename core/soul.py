@@ -1,6 +1,8 @@
 from agents.academic import (
     run as run_academic,
-    ACADEMIC_COMMANDS
+    ACADEMIC_COMMANDS,
+    find_course_code,
+    handle_natural_course_question
 )
 from agents.developer import (
     run as run_developer,
@@ -42,7 +44,18 @@ COMMAND_GROUPS = {
             "homework"
         ],
         "action": run_academic,
-        "commands": ACADEMIC_COMMANDS
+        "commands": ACADEMIC_COMMANDS,
+        "prefixes": [
+    "add course ",
+    "course ",
+    "add assignment ",
+    "assignment ",
+    "complete assignment ",
+    "add note ",
+    "note ",
+    "context ",
+    "ask course "
+    ]
     },
 
     "Development": {
@@ -55,7 +68,8 @@ COMMAND_GROUPS = {
             "programming"
         ],
         "action": run_developer,
-        "commands": DEVELOPER_COMMANDS
+        "commands": DEVELOPER_COMMANDS,
+        "prefixes": []
     },
 
     "Game Development": {
@@ -67,7 +81,8 @@ COMMAND_GROUPS = {
             "unity"
         ],
         "action": run_game_dev,
-        "commands": GAME_DEV_COMMANDS
+        "commands": GAME_DEV_COMMANDS,
+        "prefixes": []
     }
 }
 
@@ -256,16 +271,44 @@ def route_command(command, session):
 
     if current_group:
         local_commands = current_group["commands"]
+        local_prefixes = current_group["prefixes"]
 
         if normalized_command in local_commands:
             return current_group["action"](
-                normalized_command
+                raw_command,
+                AI_PROVIDER
+            )
+
+        if any(
+            normalized_command.startswith(prefix)
+            for prefix in local_prefixes
+        ):
+            return current_group["action"](
+                raw_command,
+                AI_PROVIDER
             )
 
     for group_name, group in COMMAND_GROUPS.items():
         if normalized_command in group["aliases"]:
             session.set_mode(group_name)
 
-            return group["action"]()
+            return group["action"](
+                ai_provider=AI_PROVIDER
+            )
+
+    course_code = find_course_code(
+        raw_command
+    )
+
+    if course_code:
+        academic_response = (
+            handle_natural_course_question(
+                raw_command,
+                AI_PROVIDER
+            )
+        )
+
+        if academic_response:
+            return academic_response
 
     return ask_ai(raw_command, session)

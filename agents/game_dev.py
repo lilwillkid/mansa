@@ -6,7 +6,7 @@ GAME_DEV_COMMANDS = {
 }
 
 
-def run(command=None):
+def run(command=None, ai_provider=None):
     if command is None:
         available_tools = ", ".join(GAME_DEV_COMMANDS.keys())
 
